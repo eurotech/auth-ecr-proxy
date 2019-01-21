@@ -5,7 +5,9 @@ RUN yum -y install \
         epel-release \
         && \
     yum -y install python-pip && \
-    pip install --upgrade pip awscli==1.11.92 
+    pip install --upgrade pip awscli==1.11.92 && \ 
+    opm get bungle/lua-resty-session
+
 
 COPY configs/nginx/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
 COPY configs/nginx/default.conf /etc/nginx/conf.d/default.conf
