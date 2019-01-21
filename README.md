@@ -27,4 +27,7 @@ DBUSER      - required
 DBPASSWORD  - required
 ```
 
+The port exposed by nginx is 80, you can setup in front of this a loadbalancer that will expose the certificates.
+
+
 [Docker Image](https://hub.docker.com/r/eurotech/auth-ecr-proxy)
