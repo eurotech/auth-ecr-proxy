@@ -53,7 +53,7 @@ function authenticate(user, password, uri)
     user = ngx.quote_sql_str(user)
     password = ngx.quote_sql_str(password)
     uri = ngx.quote_sql_str(uri)
-    local query = "select 1 from http_groups g INNER JOIN http_users user on g.id = user.group_id INNER JOIN uri_ref uri on uri.group_id = g.id where username = %s and password = MD5(%s) and uri = %s"
+    local query = "select 1 from users us INNER JOIN groups_users_ref gr_us on us.id_us = gr_us.id_us INNER JOIN groups gr on gr_us.id_gr = gr.id_gr INNER JOIN groups_uri_ref gr_ur on gr.id_gr = gr_ur.id_gr INNER JOIN uri ur on gr_ur.id_ur = ur.id_ur WHERE username = %s and password = MD5(%s) and uri = %s;"
     query = string.format(query, user, password, uri);
     res, err, errno, sqlstate = db:query(query)
  

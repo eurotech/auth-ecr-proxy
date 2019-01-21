@@ -7,7 +7,7 @@ The base image is openresty centos, the authentication layer is made with LUA la
 In this repository you can find also the script for create the db tables required for the authentication.
 You can manage the users, groups and uris associated to the groups.
 
-The default uri for having a successfull login it's /v2/.
+The default uri for having a successful login it's /v2/.
 
 You can enable the pull of the images by adding the uri in this format:
 /v2/registry/image/manifests/tag
