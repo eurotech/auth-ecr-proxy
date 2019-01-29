@@ -1,12 +1,12 @@
-CREATE TABLE IF NOT EXISTS `groups` (
+EATE TABLE IF NOT EXISTS `groups` (
   `id_gr`   INT         PRIMARY KEY NOT NULL AUTO_INCREMENT,
   `name`    varchar(30) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `users` (
   `id_us`       INT         PRIMARY KEY NOT NULL AUTO_INCREMENT,
-  `username` varchar(15) NOT NULL DEFAULT '',
-  `password` varchar(56) NOT NULL DEFAULT ''
+  `username` varchar(30) NOT NULL DEFAULT '',
+  `password` varchar(50) NOT NULL DEFAULT ''
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `uri` (
@@ -28,3 +28,10 @@ CREATE TABLE IF NOT EXISTS `groups_users_ref` (
    foreign key(id_gr)  references groups(id_gr),
    foreign key(id_us)  references users(id_us)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE IF NOT EXISTS `log_proxy` (
+  `id`        INT         PRIMARY KEY NOT NULL AUTO_INCREMENT,
+  `username`  varchar(30) NOT NULL DEFAULT '',
+  `timestamp` timestamp   NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
