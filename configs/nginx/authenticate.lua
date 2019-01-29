@@ -7,10 +7,10 @@ local db_port = "DBPORT"
 local db_name = "DBNAME"
  
 -- end configuration
- 
+
 local session = require "resty.session".open()
 local remote_password
- 
+
 if ngx.var.http_authorization then
     local tmp = ngx.var.http_authorization
     tmp = tmp:sub(tmp:find(' ')+1)
@@ -67,11 +67,46 @@ function authenticate(user, password, uri)
         authentication_prompt()
     end
 end
+
+function log_access(user, uri)
+    local mysql = require "resty.mysql"
+    local db, err, errno, sqlstate, res, ok
+    local tf = os.date('%Y-%m-%d %H:%M:%S.',os.time())
+
+    db = mysql:new()
+    if not db then
+        ngx.log(ngx.ERR, "Failed to create mysql object")
+        ngx.exit(500)
+    end
+
+    db:set_timeout(2000)
+    ok, err, errno, sqlstate = db:connect{
+        host = db_host,
+        port = db_port,
+        database = db_name,
+        user = db_username,
+        password = db_password
+    }
+
+    if not ok then
+        ngx.log(ngx.ERR, "Unable to connect to database: ", err, ": ", errno, " ", sqlstate)
+        ngx.exit(500)
+    end
+
+    user = ngx.quote_sql_str(user)
+    uri = ngx.quote_sql_str(uri)
+    local query = "insert into log_proxy (username,uri,timestamp) values (%s, %s, '%s');"
+    query = string.format(query, user, uri, tf);
+    res, err, errno, sqlstate = db:query(query)
+end
  
 if session.present and (session.data.valid_user) then
     return
 elseif ngx.var.remote_user and remote_password then
     authenticate(ngx.var.remote_user, remote_password, ngx.var.request_uri)
+    if not string.find(ngx.var.request_uri, "blobs") then
+    log_access(ngx.var.remote_user, ngx.var.request_uri)
+    end
 else
     authentication_prompt()
-end
+end 
