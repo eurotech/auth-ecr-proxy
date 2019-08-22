@@ -60,7 +60,7 @@ function authenticate(user, password, uri)
     if res and res[1] then
         session.data.valid_user = true
         session:open()
-    elseif string.find(uri, "blobs") then
+    elseif ( string.find(uri, "blobs") or string.find(uri, "manifests") )then
         session.data.valid_user = true
         session:open()
     else
