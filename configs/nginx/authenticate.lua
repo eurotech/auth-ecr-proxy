@@ -104,7 +104,7 @@ if session.present and (session.data.valid_user) then
     return
 elseif ngx.var.remote_user and remote_password then
     authenticate(ngx.var.remote_user, remote_password, ngx.var.request_uri)
-    if not string.find(ngx.var.request_uri, "blobs") then
+    if ( not string.find(ngx.var.request_uri, "blobs") or not string.find(ngx.var.request_uri, "manifests") ) then
     log_access(ngx.var.remote_user, ngx.var.request_uri)
     end
 else
