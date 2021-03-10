@@ -68,6 +68,12 @@ function authenticate(user, password, uri)
     if  uri == "/v2/" then
         uri = ngx.quote_sql_str(uri)
         query = "select 1 from users us INNER JOIN groups_users_ref gr_us on us.id_us = gr_us.id_us INNER JOIN groups gr on gr_us.id_gr = gr.id_gr INNER JOIN groups_uri_ref gr_ur on gr.id_gr = gr_ur.id_gr INNER JOIN uri ur on gr_ur.id_ur = ur.id_ur WHERE username = %s and password = MD5(%s) and uri = %s;"
+    elseif string.find(uri, "charts") then
+        splituri = split(uri, "/")
+        image = splituri[4]
+        tag = splituri[6]
+        uri = "\'%" .. image .. "%" .. tag .. "%\'"
+        query = "select 1 from users us INNER JOIN groups_users_ref gr_us on us.id_us = gr_us.id_us INNER JOIN groups gr on gr_us.id_gr = gr.id_gr INNER JOIN groups_uri_ref gr_ur on gr.id_gr = gr_ur.id_gr INNER JOIN uri ur on gr_ur.id_ur = ur.id_ur WHERE username = %s and password = MD5(%s) and uri like %s;"
     else
         splituri = split(uri, "/")
         image = splituri[3]
