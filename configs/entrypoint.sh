@@ -79,7 +79,7 @@ fi
 # else
 #     aws_cli_exec=$(/usr/bin/aws ecr get-login-password --registry-ids $REGISTRY_ID)
 # fi
-auth_token=$(aws ecr get-authorization-token --output text --no-cli-pager)
+auth_token=$(/usr/bin/aws ecr get-authorization-token --output text --no-cli-pager)
 
 token=$(echo ${auth_token} | cut -d' ' -f 2)
 reg_url=$(echo ${auth_token} | cut -d' ' -f 4)

@@ -13,7 +13,7 @@ local session = require "resty.session".open()
 -- read the content of /etc/nginx/aws_token.txt
 local f = io.open("/etc/nginx/aws_token.txt", "r")
 if f == nil then
-    ngx.log(ngx.ERR, "Unable to open /etc/nginx/aws_token.txt")
+    ngx.log(ngx.ERR, "Unable to open /etc/nginx/aws_token.txt - AWS token file not found. Ensure entrypoint.sh has run successfully and the file exists at the expected location.")
     ngx.exit(500)
 end
 local aws_token = f:read("*all")

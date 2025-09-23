@@ -1,11 +1,9 @@
 FROM openresty/openresty:1.27.1.2-bookworm
 
-RUN apt update && apt -y install python3-pip awscli openresty-opm
-# && \
-# RUN    pip3 install --system --upgrade pip awscli==2.28.24
-# && \ 
-RUN    opm get bungle/lua-resty-session
-RUN apt-get clean && rm -rf /var/lib/apt/lists/*
+RUN apt update && \
+    apt -y install python3-pip awscli openresty-opm && \
+    opm get bungle/lua-resty-session && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 
 COPY configs/nginx/nginx.conf /usr/local/openresty/nginx/conf/nginx.conf
