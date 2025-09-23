@@ -1,5 +1,5 @@
 #!/bin/sh
-set -x
+
 nx_conf=/etc/nginx/conf.d/default.conf
 auth_conf=/etc/nginx/authenticate.lua
 
