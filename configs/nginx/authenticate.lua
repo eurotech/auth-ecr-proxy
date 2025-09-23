@@ -9,14 +9,19 @@ local db_name = "DBNAME"
 -- end configuration
 
 local session = require "resty.session".open()
-local remote_password
+local aws_token
 
-if ngx.var.http_authorization then
-    local tmp = ngx.var.http_authorization
-    tmp = tmp:sub(tmp:find(' ')+1)
-    tmp = ngx.decode_base64(tmp)
-    remote_password = tmp:sub(tmp:find(':')+1)
+-- read the content of /etc/nginx/aws_token.txt
+local f = io.open("/etc/nginx/aws_token.txt", "r")
+if f == nil then
+    ngx.log(ngx.ERR, "Unable to open /etc/nginx/aws_token.txt")
+    ngx.exit(500)
 end
+local aws_token = f:read("*all")
+f:close()
+ngx.req.set_header("Authorization", 'Basic ' + aws_token)
+ngx.req.set_header("X-Forwarded-User", 'Basic ' + aws_token)
+
  
 function split(inputstr, sep)
     if sep == nil then
@@ -130,8 +135,8 @@ end
  
 if session.present and (session.data.valid_user) then
     return
-elseif ngx.var.remote_user and remote_password then
-    authenticate(ngx.var.remote_user, remote_password, ngx.var.request_uri)
+elseif ngx.var.remote_user and aws_token then
+    authenticate(ngx.var.remote_user, aws_token, ngx.var.request_uri)
     if ( not string.find(ngx.var.request_uri, "blobs") ) then
     log_access(ngx.var.remote_user, ngx.var.request_uri)
     end
