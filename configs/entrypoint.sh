@@ -15,7 +15,7 @@ region_config() {
 }
 
 test_iam() {
-    wget -q -O- ${AWS_IAM} | grep -q 'region'
+    curl -q -L ${AWS_IAM} 2>/dev/null | grep -q 'region'
 }
 
 test_config() {
@@ -33,8 +33,7 @@ if test_config region
 then
     echo "region found in ~/.aws mounted as secret"
 # configure regions if variable specified at run time
-elif [[ "$REGION" != "" ]]
-then
+elif [ "$REGION" != "" ] ; then
     header_config
     region_config $REGION
     fix_perm
@@ -56,7 +55,7 @@ if test_config aws_access_key_id
 then
     echo "aws key and secret found in ~/.aws mounted as secrets"
 # if both key and secret are declared
-elif [[ "$AWS_KEY" != "" && "$AWS_SECRET" != "" ]]
+elif [ "$AWS_KEY" != "" ] && [ "$AWS_SECRET" != "" ]
 then
     echo "aws_access_key_id = $AWS_KEY
 aws_secret_access_key = $AWS_SECRET" >> ${AWS_FOLDER}/config
@@ -64,7 +63,7 @@ aws_secret_access_key = $AWS_SECRET" >> ${AWS_FOLDER}/config
 # if the key and secret are not mounted as secrets
 else
     echo "key and secret not available in ~/.aws/"
-    if aws ecr get-authorization-token | grep expiresAt
+    if /usr/bin/aws ecr get-authorization-token | grep expiresAt
     then
         echo "iam role configured to allow ecr access"
     else
@@ -74,25 +73,22 @@ else
 fi
 
 # update the auth token
-if [ "$REGISTRY_ID" = "" ]
-then 
-    aws_cli_exec=$(aws ecr get-login --no-include-email)
-else
-    aws_cli_exec=$(aws ecr get-login --no-include-email --registry-ids $REGISTRY_ID)
-fi
-auth=$(grep  X-Forwarded-User ${nx_conf} | awk '{print $4}'| uniq|tr -d "\n\r")
-token=$(echo "${aws_cli_exec}" | awk '{print $6}')
-auth_n=$(echo AWS:${token}  | base64 |tr -d "[:space:]")
-reg_url=$(echo "${aws_cli_exec}" | awk '{print $7}')
+# if [ "$REGISTRY_ID" = "" ]
+# then 
+#     aws_cli_exec=$(/usr/bin/aws ecr get-login-password)
+# else
+#     aws_cli_exec=$(/usr/bin/aws ecr get-login-password --registry-ids $REGISTRY_ID)
+# fi
+auth_token=$(/usr/bin/aws ecr get-authorization-token --output text --no-cli-pager)
 
-sed -i "s|${auth%??}|${auth_n}|g" ${nx_conf}
+token=$(echo ${auth_token} | cut -d' ' -f 2)
+reg_url=$(echo ${auth_token} | cut -d' ' -f 4)
+
+echo "${token}" > /etc/nginx/aws_token.txt
+
 sed -i "s|REGISTRY_URL|$reg_url|g" ${nx_conf}
 
-sed -i "s|DBHOST|${DBHOST}|g" ${auth_conf}
-sed -i "s|DBPORT|${DBPORT}|g" ${auth_conf}
-sed -i "s|DBUSER|${DBUSER}|g" ${auth_conf}
-sed -i "s|DBPASSWORD|${DBPASSWORD}|g" ${auth_conf}
-sed -i "s|DBNAME|${DBNAME}|g" ${auth_conf}
+sed -i "s|DBHOST|${DBHOST}|g;s|DBPORT|${DBPORT}|g;s|DBUSER|${DBUSER}|g;s|DBPASSWORD|${DBPASSWORD}|g;s|DBNAME|${DBNAME}|g" ${auth_conf}
 
 /renew_token.sh &
 
